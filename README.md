@@ -18,9 +18,9 @@ Using downloader like [E-Hentai-Downloader](https://github.com/dnsev-h/E-Hentai-
 
 To solve it. I decided to write this project to solve these problems:
 
-- Generate eze style JSON from LANraragi Backup JSON or existing zip file.
+- Generate per-file eze style JSON from LANraragi Backup JSON or existing zip file.
 
-
+- Check if gallery is updated from LANraragi Backup JSON.
 
 TODO:
 
