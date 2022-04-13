@@ -32,7 +32,7 @@ TODO:
     - [ ] by the source URL in zip file's info.json
 - [ ] let LANraragi plugin to support external eze style JSON, **Perl**
   - [ ] LANraragi #498
-  - [ ] LANraragi #584
+  - [x] LANraragi #584
 - [ ] gallery update checker, **Python**
   - [ ] from LANraragi Backup JSON
 
