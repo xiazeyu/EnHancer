@@ -33,6 +33,7 @@ TODO:
 - [ ] let LANraragi plugin to support external eze style JSON, **Perl**
   - [ ] LANraragi #498
   - [x] LANraragi #584
+  - [ ] eze plugin enhancement (make it more like EH plugin)
 - [ ] gallery update checker, **Python**
   - [ ] from LANraragi Backup JSON
 
