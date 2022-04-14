@@ -24,17 +24,18 @@ To solve it. I decided to write this project to solve these problems:
 
 TODO:
 
-- [ ] get external eze style JSON (by matching title or by matching source URL), **Node.js**
+- [ ] get external eze style JSON (by matching title or by matching source URL)
   - [x] from URL
   - [ ] from LANraragi Backup JSON
-  - [ ] from existing zip file
-    - [ ] by title
-    - [ ] by the source URL in zip file's info.json
-- [x] let LANraragi plugin to support external eze style JSON, **Perl**
+  - ~[ ] from existing zip file~
+    - ~[ ] by title~
+    - ~[ ] by the source URL in zip file's info.json~
+- [x] let LANraragi plugin to support external eze style JSON
   - [x] LANraragi #498
   - [x] LANraragi #584
   - [x] eze plugin enhancement (make it more like EH plugin)
-- [ ] gallery update checker, **Python**
+- [ ] gallery update checker `visible == true`
+  - [ ] from URL
   - [ ] from LANraragi Backup JSON
 
 
