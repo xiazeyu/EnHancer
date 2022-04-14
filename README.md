@@ -25,7 +25,7 @@ To solve it. I decided to write this project to solve these problems:
 TODO:
 
 - [ ] get external eze style JSON (by matching title or by matching source URL), **Node.js**
-  - [ ] from URL
+  - [x] from URL
   - [ ] from LANraragi Backup JSON
   - [ ] from existing zip file
     - [ ] by title
