@@ -1,0 +1,13 @@
+.vscode/
+temp/
+info.json
+*.zip
+*.rar
+*.cbz
+*.cbr
+*.7z
+node_modules/
+cookie.txt
+cookies.txt
+log.txt
+test/

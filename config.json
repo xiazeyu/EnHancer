@@ -1,0 +1,113 @@
+{
+	"general": {
+		"logFileName": "log.txt",
+		"sevenZipExeSearchLocations": [
+			"7z",
+			"C:\\Program Files\\7-Zip\\7z",
+			"C:\\Program Files (x86)\\7-Zip\\7z"
+		]
+	},
+	"lookup": {
+		"exCookiesFileName": "cookies.txt",
+		"searchExpunged": true,
+		"searchCoversOnly": false,
+		"maximumNumberOfResultsToCheck": 25,
+		"delay": {
+			"gallerySearch": 10.0,
+			"gallerySearchRandom": 0.0,
+			"apiCall": 5.0,
+			"apiCallRandom": 0.0,
+			"skipOnCompletion": false
+		},
+		"priorities": {
+			"tags": [
+				{ "value": "misc:already uploaded", "priority": -1.0, "blacklist": false },
+				{ "value": "misc:incomplete", "priority": -1.0, "blacklist": false }
+			],
+			"language": [
+				{ "value": "english", "priority": 2.0 },
+				{ "value": "japanese", "priority": 1.0 },
+				{ "value": null, "priority": -1.0, "blacklist": false }
+			],
+			"title": [
+				{ "value": "regex:colorized", "priority": 0.0 }
+			],
+			"titleOriginal": [
+				{ "value": "regex:カラー化", "priority": 0.0 }
+			],
+			"fileCount": {
+				"nearest": { "priority": 0.5 },
+				"highest": { "priority": 0.0 },
+				"highestSearchMatches": { "priority": 1.0 }
+			}
+		}
+	},
+	"scanning": {
+		"scanFoldersForArchives": true,
+		"scanFoldersForImages": true,
+		"scanFoldersRecursiveDepth": 10,
+		"archiveFolderPermitNestedDirectores": true,
+		"ignoreFiles": [
+			"regex:^\\."
+		],
+		"ignoreDirectories": [
+			"regex:^\\.",
+			"node_modules"
+		],
+		"archiveFolderPermittedExtensions": [
+			".txt",
+			".json"
+		],
+		"imageFileExtensions": [
+			".jpg",
+			".jpeg",
+			".png",
+			".gif",
+			".bmp"
+		],
+		"archiveFileExtensions": [
+			".zip",
+			".rar",
+			".7z",
+			".cbr",
+			".cbz"
+		],
+		"targetFiltering": {
+			"file": {
+				"fileNameWhitelist": [],
+				"fileNameBlacklist": []
+			},
+			"folder": {
+				"fileNameWhitelist": [],
+				"fileNameBlacklist": []
+			}
+		}
+	},
+	"archive": {
+		"file": {
+			"minImagesToCheck": 1,
+			"maxImagesToCheck": 5,
+			"maxSearchErrors": 1,
+			"updateMetadataIfExists": false,
+			"continueSearchIfResultsAreAmbiguous": true,
+			"preferredImageOrder": [ 0, 1, 2, 9 ],
+			"metadataFileNameInArchiveFile": "info.json",
+			"metadataFileNameInFolder": null,
+			"metadataFileNameInFolderOnFailure": "${name}.info.json",
+			"skipIfFileExistsInArchiveFile": [ "info.json" ],
+			"skipIfFileExistsInFolder": [ "${name}.info.json" ]
+		},
+		"folder": {
+			"minImagesToCheck": 1,
+			"maxImagesToCheck": 5,
+			"maxSearchErrors": 1,
+			"updateMetadataIfExists": false,
+			"continueSearchIfResultsAreAmbiguous": true,
+			"preferredImageOrder": [ 0, 1, 2, 9 ],
+			"metadataFileNameInFolder": "info.json",
+			"metadataFileNameInParentFolder": null,
+			"skipIfFileExistsInFolder": [ "info.json" ],
+			"skipIfFileExistsInParentFolder": [ "${name}.info.json" ]
+		}
+	}
+}
