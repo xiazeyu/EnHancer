@@ -30,10 +30,10 @@ TODO:
   - [ ] from existing zip file
     - [ ] by title
     - [ ] by the source URL in zip file's info.json
-- [ ] let LANraragi plugin to support external eze style JSON, **Perl**
+- [x] let LANraragi plugin to support external eze style JSON, **Perl**
   - [x] LANraragi #498
   - [x] LANraragi #584
-  - [ ] eze plugin enhancement (make it more like EH plugin)
+  - [x] eze plugin enhancement (make it more like EH plugin)
 - [ ] gallery update checker, **Python**
   - [ ] from LANraragi Backup JSON
 
