@@ -24,9 +24,9 @@ To solve it. I decided to write this project to solve these problems:
 
 TODO:
 
-- [ ] get external eze style JSON (by matching title or by matching source URL)
+- [x] get external eze style JSON (by matching title or by matching source URL)
   - [x] from URL
-  - [ ] from LANraragi Backup JSON
+  - [x] from LANraragi Backup JSON
   - ~[ ] from existing zip file~
     - ~[ ] by title~
     - ~[ ] by the source URL in zip file's info.json~
@@ -38,6 +38,9 @@ TODO:
   - [ ] from URL
   - [ ] from LANraragi Backup JSON
 
+### Usage
+
+Put `backup.json` in the folder, use `node parseBackup.js`. The output eze-style json file will be in `output/` folder, named by `filename` in backup.json.
 
 
 > References:

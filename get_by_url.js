@@ -96,6 +96,8 @@ async function main() {
 
 async function get_by_url(log, config, configDir, url) {
 
+	const outputPrefix = 'output/';
+
     const runner = new Runner(log, config, configDir);
     
     runner.initDependencies();
@@ -108,6 +110,7 @@ async function get_by_url(log, config, configDir, url) {
     const json = commonJson.toCommonJson(galleryInfos[0].info);
     const jsonString = JSON.stringify(json, null, "  ");
     log.debug(`jsonString: ${jsonString}`);
+	await fs.writeFile(path.resolve(outputPrefix, "info", ".json"), jsonString, "utf8");
 
     return jsonString;
 
