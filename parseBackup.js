@@ -7,7 +7,7 @@ const GalleryIdentifier = require("./src/api/gallery-identifier");
 const commonJson = require("./src/api/gallery-info/common-json");
 const request = require("./src/request");
 
-const outputPrefix = 'output/';
+const outputPrefix = "output/";
 
 class Runner {
 
@@ -72,12 +72,11 @@ class Runner {
 
     }
 
-    async getGalleryInfoJson(galleryIdentifier){
+    async getGalleryCommon(galleryIdentifier){
         const galleryInfo = await this.getGalleryInfo(galleryIdentifier);
         const json = commonJson.toCommonJson(galleryInfo);
-        const jsonString = JSON.stringify(json, null, "  ");
         // console.log(`jsonString: ${jsonString}`);
-        return jsonString;
+        return json;
     }
 
 }
@@ -109,16 +108,20 @@ async function generateGalleryInfoJson(runner, currentArchieve){
     const galleryIdentifier = generateGalleryIdentifier(currentArchieve["tags"]);
     if (galleryIdentifier !== null){
         try{
-            const getGalleryInfoJson = await runner.getGalleryInfoJson(galleryIdentifier);
-            await fs.promises.writeFile(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`), getGalleryInfoJson, "utf8");
-            return {'arcid': currentArchieve["arcid"], 'status': true}
+            const getGalleryInfoJson = await runner.getGalleryCommon(galleryIdentifier);
+            await fs.promises.writeFile(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`), JSON.stringify(getGalleryInfoJson, null, "  "), "utf8");
+            return {"arcid": currentArchieve["arcid"],
+                    "status": true,
+                    "visible": getGalleryInfoJson["gallery_info_full"]["visible"],
+                    "visible_reason": getGalleryInfoJson["gallery_info_full"]["visible_reason"]
+                };
         }catch(e){
             console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed ${e}`);
-            return {'arcid': currentArchieve["arcid"], 'status': false, 'reason': e}
+            return {"arcid": currentArchieve["arcid"], "status": false, "reason": e};
         }
     } else {
         console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed`);
-        return {'arcid': currentArchieve["arcid"], 'status': false, 'reason': 'GalleryIdentifier not exist.'}
+        return {"arcid": currentArchieve["arcid"], "status": false, "reason": "GalleryIdentifier not exist."};
     }
 }
 
@@ -131,22 +134,30 @@ async function main(){
     const archivesObj = JSON.parse(backupFileData)["archives"];
 
     const final = {
-        'success': new Array(),
-        'fail': new Array(),
+        "success": new Array(),
+        "fail": new Array(),
+        "invisible": new Array(),
     }
+    
+    let count = 0;
 
     for (const currentArchieve of archivesObj) {
         const result = await generateGalleryInfoJson(runner, currentArchieve);
         await new Promise((r) => setTimeout(r, 1000))
-        if(result['status']){
-            final['success'].push(result);
-            console.log('success!!!');
+
+        if(result["status"]){
+            final["success"].push(result);
+            if(!result["visible"]){
+                final["invisible"].push(result);
+            }
+            console.log(`success!!! ${count++} / ${archivesObj.length}`);
         }else{
-            final['fail'].push(result);
-            console.log('fail!!!');
+            final["fail"].push(result);
+            console.log(`FAIL!!!  ${count++} / ${archivesObj.length}`);
         }
         console.log();
-        await fs.promises.writeFile('final.json', JSON.stringify(final), "utf8");
+
+        await fs.promises.writeFile("final.json", JSON.stringify(final, null, "  "), "utf8");
     }
 
 

@@ -34,9 +34,9 @@ TODO:
   - [x] LANraragi #498
   - [x] LANraragi #584
   - [x] eze plugin enhancement (make it more like EH plugin)
-- [ ] gallery update checker `visible == true`
-  - [ ] from URL
-  - [ ] from LANraragi Backup JSON
+- [x] gallery update checker `visible == true`
+  - ~[ ] from URL~
+  - [x] from LANraragi Backup JSON
 
 ### Usage
 
