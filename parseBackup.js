@@ -127,7 +127,7 @@ async function generateGalleryInfoJson(runner, currentArchieve){
                 }; 
         }catch(e){
             console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed ${e}`);
-            return {"arcid": currentArchieve["arcid"], "status": false, "reason": e};
+            return {"arcid": currentArchieve["arcid"], "status": false, "galleryIdentifier": galleryIdentifier, "reason": `${e}`};
         }
     } else {
         console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed`);
@@ -173,7 +173,11 @@ async function main(){
                 arcid: result["arcid"],
                 title: currentArchieve["title"],
                 tags: currentArchieve["tags"],
+                reason: result["reason"],
             };
+            if ("galleryIdentifier" in result){
+                topush["link"] = `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`;
+            }
             final["fail"].push(topush);
             console.log(`FAIL!!!  ${count++} / ${archivesObj.length}`);
         }

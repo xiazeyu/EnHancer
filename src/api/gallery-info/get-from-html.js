@@ -374,8 +374,7 @@ function populateGalleryInfoFromHtml(info, html) {
 function getFromHtml(html, url) {
 	const dom = new jsdom.JSDOM(html, {
 		url: url,
-		includeNodeLocations: true,
-		resources: "usable"
+		includeNodeLocations: true
 	  });
 	const document = dom.window.document;
 
