@@ -2,7 +2,8 @@
 
 const types = require("./types");
 const utils = require("./utils");
-
+const jsdom = require("jsdom");
+const Node = new jsdom.JSDOM('').window.Node;
 
 function getCssUrl(urlString) {
 	const pattern = /url\s*\(\s*(['"])?/;
@@ -371,7 +372,14 @@ function populateGalleryInfoFromHtml(info, html) {
 }
 
 function getFromHtml(html, url) {
-	const link = html.querySelector(".ptt td.ptds>a[href],.ptt td.ptdd>a[href]");
+	const dom = new jsdom.JSDOM(html, {
+		url: url,
+		includeNodeLocations: true,
+		resources: "usable"
+	  });
+	const document = dom.window.document;
+
+	const link = document.querySelector(".ptt td.ptds>a[href],.ptt td.ptdd>a[href]");
 	if (link === null) { return null; }
 
 	const idPage = utils.getGalleryIdentifierAndPageFromUrl(link.getAttribute("href") || "");
@@ -381,7 +389,7 @@ function getFromHtml(html, url) {
 	info.identifier = idPage.identifier;
 	info.currentPage = idPage.page;
 	info.source = "html";
-	populateGalleryInfoFromHtml(info, html);
+	populateGalleryInfoFromHtml(info, document);
 	info.sourceSite = utils.getSourceSiteFromUrl(url);
 	info.dateGenerated = Date.now();
 	return info;

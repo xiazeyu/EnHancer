@@ -4,6 +4,7 @@ const url = require("url");
 const crypto = require("crypto");
 const GalleryIdentifier = require("./gallery-identifier").GalleryIdentifier;
 const getFromJson = require("./gallery-info/get-from-json");
+const getFromHtml = require("./gallery-info/get-from-html");
 const request = require("../request");
 
 const maxApiResults = 25;
@@ -65,6 +66,8 @@ function getGalleryInfoFromApiResponse(array, index, site) {
 	if (arrayEntry.error) {
 		return { error: arrayEntry.error, info: null };
 	}
+	console.log(arrayEntry);
+	console.log(site);
 	return { error: null, info: getFromJson(arrayEntry, site) };
 }
 
@@ -84,6 +87,40 @@ function getResponseJson(responseBody) {
 
 	return responseJson;
 }
+
+function getResponseHtml(responseBody) {
+	if (!(responseBody instanceof Buffer)) { return responseBody; }
+
+	let responseHtml;
+	try {
+		responseHtml = responseBody.toString('utf-8');
+	} catch (e) {
+		throw new Error(`Invalid response HTML ${e}`);
+	}
+
+	if (responseHtml === null || typeof(responseHtml) !== "string") {
+		throw new Error("Unexpected response");
+	}
+
+	return responseHtml;
+}
+
+async function getGalleryInfosFromHtml(site, cookieJar, galleryIdentifiers) {
+	const url = `${site}/g/${galleryIdentifiers[0].id}/${galleryIdentifiers[0].token}`;
+	//console.log(url);
+
+	const response = await request.get(url, cookieJar);
+	// console.log(url, cookieJar);
+	const responseHtml = getResponseHtml(response.body);
+	//console.log(responseHtml);
+
+	const results = [];
+	for (let i = 0, ii = galleryIdentifiers.length; i < ii; ++i) {
+		// console.log(getFromHtml(responseHtml, url));
+		results.push(getFromHtml(responseHtml, url));
+	}
+	return results;
+} 
 
 async function getGalleryInfos(site, cookieJar, galleryIdentifiers) {
 	const gidlist = [];
@@ -117,5 +154,6 @@ module.exports = {
 	getImageHashSearchUrl,
 	getSearchResults,
 	getGalleryInfos,
+	getGalleryInfosFromHtml,
 	get maxApiResults() { return maxApiResults; }
 };

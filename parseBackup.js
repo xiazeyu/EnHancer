@@ -64,7 +64,7 @@ class Runner {
         return results;
     }
 
-    async getGalleryInfo(galleryIdentifier){
+    async getGalleryInfoJson(galleryIdentifier){
 
         const galleryInfos = await lookup.getGalleryInfos(this.site, this.cookieJar, [galleryIdentifier])
         // console.log(galleryInfos[0].info);
@@ -72,8 +72,16 @@ class Runner {
 
     }
 
+    async getGalleryInfoHtml(galleryIdentifier){
+
+        const galleryInfos = await lookup.getGalleryInfosFromHtml(this.site, this.cookieJar, [galleryIdentifier])
+        // console.log(galleryInfos[0]);
+        return galleryInfos[0];
+
+    }
+
     async getGalleryCommon(galleryIdentifier){
-        const galleryInfo = await this.getGalleryInfo(galleryIdentifier);
+        const galleryInfo = await this.getGalleryInfoHtml(galleryIdentifier);
         const json = commonJson.toCommonJson(galleryInfo);
         // console.log(`jsonString: ${jsonString}`);
         return json;
@@ -107,18 +115,19 @@ async function generateGalleryInfoJson(runner, currentArchieve){
     console.log(`now processing ${currentArchieve["arcid"]} ${currentArchieve["filename"]}.`);
     const galleryIdentifier = generateGalleryIdentifier(currentArchieve["tags"]);
     if (galleryIdentifier !== null){
-        try{
+        // try{
             const getGalleryInfoJson = await runner.getGalleryCommon(galleryIdentifier);
             await fs.promises.writeFile(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`), JSON.stringify(getGalleryInfoJson, null, "  "), "utf8");
             return {"arcid": currentArchieve["arcid"],
                     "status": true,
                     "visible": getGalleryInfoJson["gallery_info_full"]["visible"],
-                    "visible_reason": getGalleryInfoJson["gallery_info_full"]["visible_reason"]
-                };
-        }catch(e){
+                    "visible_reason": getGalleryInfoJson["gallery_info_full"]["visible_reason"],
+                    "galleryIdentifier": galleryIdentifier,
+                }; // DEBUG
+        /*}catch(e){
             console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed ${e}`);
             return {"arcid": currentArchieve["arcid"], "status": false, "reason": e};
-        }
+        }*/
     } else {
         console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed`);
         return {"arcid": currentArchieve["arcid"], "status": false, "reason": "GalleryIdentifier not exist."};
@@ -146,13 +155,24 @@ async function main(){
         await new Promise((r) => setTimeout(r, 1000))
 
         if(result["status"]){
-            final["success"].push(result);
+            const topush = {
+                arcid: result["arcid"],
+                title: currentArchieve["title"],
+                link: `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`,
+            };
+            final["success"].push(topush);
             if(!result["visible"]){
-                final["invisible"].push(result);
+                topush["visible_reason"] = result["visible_reason"];
+                final["invisible"].push(topush);
             }
             console.log(`success!!! ${count++} / ${archivesObj.length}`);
         }else{
-            final["fail"].push(result);
+            const topush = {
+                arcid: result["arcid"],
+                title: currentArchieve["title"],
+                tags: currentArchieve["tags"],
+            };
+            final["fail"].push(topush);
             console.log(`FAIL!!!  ${count++} / ${archivesObj.length}`);
         }
         console.log();
@@ -166,3 +186,7 @@ async function main(){
 if (require.main === module) {
 	(async () => { await main(); })();
 }
+
+module.exports = {
+	Runner
+};
