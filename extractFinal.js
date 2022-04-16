@@ -9,7 +9,7 @@ async function main(){
 
     const final = {
         "success": new Array(),
-        "tocheck": new Array(),
+        "need_check": new Array(),
         "fail": new Array(),
     }
     
@@ -17,14 +17,14 @@ async function main(){
 
     for (const obj of jsonObj["fail"]) {
         if ("link" in obj){
-            final["tocheck"].push(obj["link"]);
+            final["need_check"].push(obj["link"]);
         }else{
             final["fail"].push(obj["arcid"]);
         }
         
         console.log(`${count++} / ${jsonObj["fail"].length}`);
 
-        await fs.promises.writeFile("statistics.json", JSON.stringify(final, null, "  "), "utf8");
+        await fs.promises.writeFile("links.json", JSON.stringify(final, null, "  "), "utf8");
     }
 
     count = 0;
@@ -35,18 +35,29 @@ async function main(){
         
         console.log(`${count++} / ${jsonObj["success_and_visible"].length}`);
 
-        await fs.promises.writeFile("statistics.json", JSON.stringify(final, null, "  "), "utf8");
+        await fs.promises.writeFile("links.json", JSON.stringify(final, null, "  "), "utf8");
     }
 
     count = 0;
     
     for (const obj of jsonObj["invisible"]) {
         
-        final["tocheck"].push(obj["link"]);
+        final["need_check"].push(obj["link"]);
         
         console.log(`${count++} / ${jsonObj["invisible"].length}`);
 
-        await fs.promises.writeFile("statistics.json", JSON.stringify(final, null, "  "), "utf8");
+        await fs.promises.writeFile("links.json", JSON.stringify(final, null, "  "), "utf8");
+    }
+
+    count = 0;
+    
+    for (const obj of jsonObj["fallback"]) {
+        
+        final["need_check"].push(obj["link"]);
+        
+        console.log(`${count++} / ${jsonObj["invisible"].length}`);
+
+        await fs.promises.writeFile("links.json", JSON.stringify(final, null, "  "), "utf8");
     }
 
 }

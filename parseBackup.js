@@ -80,9 +80,15 @@ class Runner {
 
     }
 
-    async getGalleryCommon(galleryIdentifier){ // Switch source here HTML or JSON
-        // const galleryInfo = await this.getGalleryInfoJson(galleryIdentifier);
+    async getGalleryCommonHtml(galleryIdentifier){
         const galleryInfo = await this.getGalleryInfoHtml(galleryIdentifier);
+        const json = commonJson.toCommonJson(galleryInfo);
+        // console.log(`jsonString: ${jsonString}`);
+        return json;
+    }
+
+    async getGalleryCommonJson(galleryIdentifier){
+        const galleryInfo = await this.getGalleryInfoJson(galleryIdentifier);
         const json = commonJson.toCommonJson(galleryInfo);
         // console.log(`jsonString: ${jsonString}`);
         return json;
@@ -112,17 +118,22 @@ function generateGalleryIdentifier(tags){
     return galleryIdentifier;
 }
 
-async function generateGalleryInfoJson(runner, currentArchieve){
+async function generateGalleryInfoJson(runner, currentArchieve, fromHtml = true){
     console.log(`now processing ${currentArchieve["arcid"]} ${currentArchieve["filename"]}.`);
     const galleryIdentifier = generateGalleryIdentifier(currentArchieve["tags"]);
     if (galleryIdentifier !== null){
          try{
-            const getGalleryInfoJson = await runner.getGalleryCommon(galleryIdentifier);
-            await fs.promises.writeFile(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`), JSON.stringify(getGalleryInfoJson, null, "  "), "utf8");
+             let galleryInfoJson;
+            if (fromHtml){
+                galleryInfoJson = await runner.getGalleryCommonHtml(galleryIdentifier);
+            }else{
+                galleryInfoJson = await runner.getGalleryCommonJson(galleryIdentifier);
+            }
+            await fs.promises.writeFile(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`), JSON.stringify(galleryInfoJson, null, "  "), "utf8");
             return {"arcid": currentArchieve["arcid"],
                     "status": true,
-                    "visible": getGalleryInfoJson["gallery_info_full"]["visible"],
-                    "visible_reason": getGalleryInfoJson["gallery_info_full"]["visible_reason"],
+                    "visible": galleryInfoJson["gallery_info_full"]["visible"],
+                    "visible_reason": galleryInfoJson["gallery_info_full"]["visible_reason"],
                     "galleryIdentifier": galleryIdentifier,
                 }; 
         }catch(e){
@@ -147,12 +158,13 @@ async function main(){
         "fail": new Array(),
         "success_and_visible": new Array(),
         "invisible": new Array(),
+        "fallback": new Array(),
     }
     
     let count = 0;
 
     for (const currentArchieve of archivesObj) {
-        const result = await generateGalleryInfoJson(runner, currentArchieve);
+        let result = await generateGalleryInfoJson(runner, currentArchieve);
         await new Promise((r) => setTimeout(r, 1000))
 
         if(result["status"]){
@@ -169,17 +181,22 @@ async function main(){
             }
             console.log(`success!!! ${count++} / ${archivesObj.length}`);
         }else{
-            const topush = {
-                arcid: result["arcid"],
-                title: currentArchieve["title"],
-                tags: currentArchieve["tags"],
-                reason: result["reason"],
-            };
-            if ("galleryIdentifier" in result){
-                topush["link"] = `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`;
+            result = await generateGalleryInfoJson(runner, currentArchieve);
+            if(result["status"]){
+                const topush = {
+                    arcid: result["arcid"],
+                    title: currentArchieve["title"],
+                    link: `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`,
+                };
+                final["fallback"].push(topush);
+                console.log(`FALLBACK!!!  ${count++} / ${archivesObj.length}`);
+            }else{
+                if ("galleryIdentifier" in result){
+                    topush["link"] = `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`;
+                }
+                final["fail"].push(topush);
+                console.log(`FAIL!!!  ${count++} / ${archivesObj.length}`);
             }
-            final["fail"].push(topush);
-            console.log(`FAIL!!!  ${count++} / ${archivesObj.length}`);
         }
         console.log();
 
