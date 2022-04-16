@@ -66,8 +66,8 @@ function getGalleryInfoFromApiResponse(array, index, site) {
 	if (arrayEntry.error) {
 		return { error: arrayEntry.error, info: null };
 	}
-	console.log(arrayEntry);
-	console.log(site);
+	//console.log(arrayEntry);
+	//console.log(site);
 	return { error: null, info: getFromJson(arrayEntry, site) };
 }
 
@@ -122,7 +122,7 @@ async function getGalleryInfosFromHtml(site, cookieJar, galleryIdentifiers) {
 	return results;
 } 
 
-async function getGalleryInfos(site, cookieJar, galleryIdentifiers) {
+async function getGalleryInfosFromJson(site, cookieJar, galleryIdentifiers) {
 	const gidlist = [];
 	for (const id of galleryIdentifiers) {
 		gidlist.push([ id.id, id.token ]);
@@ -153,7 +153,7 @@ module.exports = {
 	getImageHash,
 	getImageHashSearchUrl,
 	getSearchResults,
-	getGalleryInfos,
+	getGalleryInfosFromJson,
 	getGalleryInfosFromHtml,
 	get maxApiResults() { return maxApiResults; }
 };
