@@ -99,7 +99,7 @@ class Runner {
 function generateGalleryIdentifier(tags){
 
     // console.log(tags);
-    const ehexp = /.*source:\s*e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/i;
+    const ehexp = /.*e(?:x|-)hentai\.org\/g\/([0-9]*)\/([0-z]*)\/*.*/i;
 
     if(ehexp.test(tags)){
         console.log("found source.");
@@ -119,30 +119,46 @@ function generateGalleryIdentifier(tags){
 }
 
 async function generateGalleryInfoJson(runner, currentArchieve, fromHtml = true){
-    console.log(`now processing ${currentArchieve["arcid"]} ${currentArchieve["filename"]}.`);
-    const galleryIdentifier = generateGalleryIdentifier(currentArchieve["tags"]);
+    console.log(`now processing ${currentArchieve}.`);
+    const galleryIdentifier = generateGalleryIdentifier(currentArchieve);
     if (galleryIdentifier !== null){
-         try{
-             let galleryInfoJson;
-            if (fromHtml){
-                galleryInfoJson = await runner.getGalleryCommonHtml(galleryIdentifier);
-            }else{
-                galleryInfoJson = await runner.getGalleryCommonJson(galleryIdentifier);
-            }
-            await fs.promises.writeFile(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`), JSON.stringify(galleryInfoJson, null, "  "), "utf8");
-            return {"arcid": currentArchieve["arcid"],
-                    "status": true,
-                    "visible": galleryInfoJson["gallery_info_full"]["visible"],
-                    "visible_reason": galleryInfoJson["gallery_info_full"]["visible_reason"],
-                    "galleryIdentifier": galleryIdentifier,
-                }; 
+        let exist = null;
+        try {
+            await fs.promises.access(path.resolve(outputPrefix, `${galleryIdentifier.id}.json`));
+            exist = true;
+        } catch {
+            exist = false;
+        }
+        
+        if(exist){
+            return {"status": true,
+            "exists": true,
+            "visible": true,
+            "galleryIdentifier": galleryIdentifier,
+            }; 
+        }
+
+        try{
+            let galleryInfoJson;
+        if (fromHtml){
+            galleryInfoJson = await runner.getGalleryCommonHtml(galleryIdentifier);
+        }else{
+            galleryInfoJson = await runner.getGalleryCommonJson(galleryIdentifier);
+        }
+        await fs.promises.writeFile(path.resolve(outputPrefix, `${galleryIdentifier.id}.json`), JSON.stringify(galleryInfoJson, null, "  "), "utf8");
+        return {"status": true,
+                "exists": false,
+                "visible": galleryInfoJson["gallery_info_full"]["visible"],
+                "visible_reason": galleryInfoJson["gallery_info_full"]["visible_reason"],
+                "galleryIdentifier": galleryIdentifier,
+            }; 
         }catch(e){
             console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed ${e}`);
-            return {"arcid": currentArchieve["arcid"], "status": false, "galleryIdentifier": galleryIdentifier, "reason": `${e}`};
+            return {"status": false, "exists": false, "galleryIdentifier": galleryIdentifier, "reason": `${e}`};
         }
     } else {
         console.log(`${currentArchieve["arcid"]} ${currentArchieve["filename"]} failed`);
-        return {"arcid": currentArchieve["arcid"], "status": false, "reason": "GalleryIdentifier not exist."};
+        return {"status": false, "exists": false, "reason": "GalleryIdentifier not exist."};
     }
 }
 
@@ -151,8 +167,8 @@ async function main(){
     await fs.promises.mkdir(outputPrefix, {recursive: true});
 
     const runner = new Runner();
-    const backupFileData = await fs.promises.readFile("backup.json", "utf8");
-    const archivesObj = JSON.parse(backupFileData)["archives"];
+    const backupFileData = await fs.promises.readFile("list.json", "utf8");
+    const archivesObj = JSON.parse(backupFileData);
 
     const final = {
         "fail": new Array(),
@@ -165,7 +181,11 @@ async function main(){
 
     for (const currentArchieve of archivesObj) {
         let result = await generateGalleryInfoJson(runner, currentArchieve);
-        await new Promise((r) => setTimeout(r, 1000))
+        if (!result["exists"]){
+            await new Promise((r) => setTimeout(r, 1000));
+        }
+        // console.log(result)
+        
 
         if(result["status"]){
             const topush = {

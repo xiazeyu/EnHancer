@@ -105,12 +105,12 @@ async function get_by_url(log, config, configDir, url) {
 
     log.debug(`current url: ${url}`);
 
-    const galleryInfos = await lookup.getGalleryInfos(runner.site, runner.cookieJar, [GalleryIdentifier.GalleryIdentifier.createFromUrl(url)])
-
-    const json = commonJson.toCommonJson(galleryInfos[0].info);
+    const galleryInfos = await lookup.getGalleryInfosFromHtml(runner.site, runner.cookieJar, [GalleryIdentifier.GalleryIdentifier.createFromUrl(url)])
+	//console.log(galleryInfos)
+    const json = commonJson.toCommonJson(galleryInfos[0]);
     const jsonString = JSON.stringify(json, null, "  ");
     log.debug(`jsonString: ${jsonString}`);
-	await fs.writeFile(path.resolve(outputPrefix, "info", ".json"), jsonString, "utf8");
+	await fs.promises.writeFile(path.resolve(outputPrefix, `${GalleryIdentifier.GalleryIdentifier.createFromUrl(url).id}.json`), jsonString, "utf8");
 
     return jsonString;
 
