@@ -167,8 +167,8 @@ async function main(){
     await fs.promises.mkdir(outputPrefix, {recursive: true});
 
     const runner = new Runner();
-    const backupFileData = await fs.promises.readFile("list.json", "utf8");
-    const archivesObj = JSON.parse(backupFileData);
+    const backupFileData = await fs.promises.readFile("downlist.txt", "utf8");
+    const archivesObj = backupFileData.split("\r\n");
 
     const final = {
         "fail": new Array(),
