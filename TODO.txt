@@ -1,0 +1,4 @@
+migrate to LRR style folder
+check if the JSON url matches the given url
+reduce the number of fallback
+retries

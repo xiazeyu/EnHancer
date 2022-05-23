@@ -122,6 +122,23 @@ async function generateGalleryInfoJson(runner, currentArchieve, fromHtml = true)
     console.log(`now processing ${currentArchieve["arcid"]} ${currentArchieve["filename"]}.`);
     const galleryIdentifier = generateGalleryIdentifier(currentArchieve["tags"]);
     if (galleryIdentifier !== null){
+        
+        let exist = null;
+        try {
+            await fs.promises.access(path.resolve(outputPrefix, `${currentArchieve["filename"]}.json`));
+            exist = true;
+        } catch {
+            exist = false;
+        }
+        
+        if(exist){
+            return {"status": true,
+            "exists": true,
+            "visible": true,
+            "galleryIdentifier": galleryIdentifier,
+            }; 
+        }
+        
          try{
              let galleryInfoJson;
             if (fromHtml){
@@ -165,7 +182,6 @@ async function main(){
 
     for (const currentArchieve of archivesObj) {
         let result = await generateGalleryInfoJson(runner, currentArchieve);
-        await new Promise((r) => setTimeout(r, 1000))
 
         if(result["status"]){
             const topush = {
@@ -181,24 +197,37 @@ async function main(){
             }
             console.log(`success!!! ${count++} / ${archivesObj.length}`);
         }else{
-            result = await generateGalleryInfoJson(runner, currentArchieve, fromHtml=false);
+            result = await generateGalleryInfoJson(runner, currentArchieve, false);
             if(result["status"]){
                 const topush = {
                     arcid: result["arcid"],
                     title: currentArchieve["title"],
+                    filename: currentArchieve["filename"],
                     link: `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`,
                 };
                 final["fallback"].push(topush);
                 console.log(`FALLBACK!!!  ${count++} / ${archivesObj.length}`);
             }else{
+                const topush = {
+                    arcid: result["arcid"],
+                    title: currentArchieve["title"],
+                    filename: currentArchieve["filename"],
+                    link: ``,
+                };
                 if ("galleryIdentifier" in result){
                     topush["link"] = `https://exhentai.org/g/${result.galleryIdentifier.id}/${result.galleryIdentifier.token}`;
+                } else {
+                    topush["link"] = `${result["arcid"]}`;
                 }
                 final["fail"].push(topush);
                 console.log(`FAIL!!!  ${count++} / ${archivesObj.length}`);
             }
         }
         console.log();
+
+        if(!result["exists"]){
+            await new Promise((r) => setTimeout(r, 1000))
+        }
 
         await fs.promises.writeFile("final.json", JSON.stringify(final, null, "  "), "utf8");
     }
